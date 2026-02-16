@@ -4,7 +4,9 @@ import { Game } from '../../engine/Game';
 import { Input } from '../../engine/Input';
 import { BombComponent } from '../components/BombComponent';
 import { ExplosionComponent } from '../components/ExplosionComponent';
+import { ParticleComponent } from '../components/ParticleComponent';
 import { PositionComponent } from '../components/PositionComponent';
+import { VelocityComponent } from '../components/VelocityComponent';
 import { PlayerComponent } from '../components/PlayerComponent';
 import { GridComponent, TileType } from '../components/GridComponent';
 import { Entity } from '../../engine/Entity';
@@ -38,7 +40,7 @@ export class BombSystem extends System {
 
             const players = this.world.getEntitiesWith(PlayerComponent, PositionComponent);
             // console.log("Players found:", players.length);
-            players.forEach(entity => {
+            players.forEach((entity: Entity) => {
                 const player = entity.getComponent(PlayerComponent)!;
                 const pos = entity.getComponent(PositionComponent)!;
 
@@ -61,7 +63,7 @@ export class BombSystem extends System {
                     // Check if tile is empty (no bomb already)
                     // Note: Actors move loosely, but bombs snap to grid.
                     // We need to check if ANY entity with BombComponent is at gx, gy.
-                    const isBombAtLoc = this.world.getEntitiesWith(BombComponent, PositionComponent).some(b => {
+                    const isBombAtLoc = this.world.getEntitiesWith(BombComponent, PositionComponent).some((b: Entity) => {
                         const bPos = b.getComponent(PositionComponent)!;
                         return Math.round(bPos.x / grid.tileSize) === gx && Math.round(bPos.y / grid.tileSize) === gy;
                     });
@@ -98,7 +100,7 @@ export class BombSystem extends System {
 
     private handleBombs(dt: number) {
         const bombs = this.world.getEntitiesWith(BombComponent, PositionComponent);
-        bombs.forEach(entity => {
+        bombs.forEach((entity: Entity) => {
             const bomb = entity.getComponent(BombComponent)!;
             bomb.timer -= dt;
             if (bomb.timer <= 0) {
@@ -125,6 +127,7 @@ export class BombSystem extends System {
         const gx = Math.round(pos.x / grid.tileSize);
         const gy = Math.round(pos.y / grid.tileSize);
         this.spawnExplosion(gx, gy, grid.tileSize);
+        this.spawnParticles(gx * grid.tileSize + grid.tileSize / 2, gy * grid.tileSize + grid.tileSize / 2);
 
         // Directions: [dx, dy]
         const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
@@ -141,6 +144,7 @@ export class BombSystem extends System {
                 }
 
                 this.spawnExplosion(tx, ty, grid.tileSize); // Hit!
+                this.spawnParticles(tx * grid.tileSize + grid.tileSize / 2, ty * grid.tileSize + grid.tileSize / 2);
 
                 if (tile === TileType.SoftBlock) {
                     // Destroy block
@@ -160,6 +164,20 @@ export class BombSystem extends System {
         exp.addComponent(new ExplosionComponent());
         exp.addComponent(new PositionComponent(gx * tileSize, gy * tileSize));
         // Add collision damage logic later (or duplicate Hitbox)
+    }
+
+    private spawnParticles(x: number, y: number) {
+        // Spawn a burst
+        for (let i = 0; i < 10; i++) {
+            const p = this.world.createEntity();
+            p.addComponent(new PositionComponent(x, y));
+
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 100 + 50;
+            p.addComponent(new VelocityComponent(Math.cos(angle) * speed, Math.sin(angle) * speed));
+
+            p.addComponent(new ParticleComponent(0.5 + Math.random() * 0.5, '#ffcc00', 3 + Math.random() * 4));
+        }
     }
 
     private handleExplosions(dt: number) {

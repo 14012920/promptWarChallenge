@@ -4,9 +4,10 @@ import { Game } from '../../engine/Game';
 import { GridComponent, TileType } from '../components/GridComponent';
 import { PositionComponent } from '../components/PositionComponent';
 import { PlayerComponent } from '../components/PlayerComponent';
-import { AIComponent, AIBehavior } from '../components/AIComponent';
+import { AIComponent } from '../components/AIComponent';
 import { BombComponent } from '../components/BombComponent';
 import { ExplosionComponent } from '../components/ExplosionComponent';
+import { ParticleComponent } from '../components/ParticleComponent';
 
 export class RenderSystem extends System {
     private ctx: CanvasRenderingContext2D;
@@ -20,7 +21,7 @@ export class RenderSystem extends System {
         this.canvas = this.ctx.canvas;
     }
 
-    public update(dt: number): void {
+    public update(_dt: number): void {
         // Clear screen
         this.ctx.fillStyle = '#222';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -58,6 +59,14 @@ export class RenderSystem extends System {
             this.drawPlayer(pos, gridSize);
         });
 
+        // Render Particles
+        const particles = this.worldRef.getEntitiesWith(ParticleComponent, PositionComponent);
+        particles.forEach(entity => {
+            const pos = entity.getComponent(PositionComponent)!;
+            const particle = entity.getComponent(ParticleComponent)!;
+            this.drawParticle(pos, particle);
+        });
+
         // Render Enemies
         const enemies = this.worldRef.getEntitiesWith(AIComponent, PositionComponent);
         enemies.forEach(entity => {
@@ -67,9 +76,9 @@ export class RenderSystem extends System {
         });
 
         // Debug FPS
-        this.ctx.fillStyle = 'white';
-        this.ctx.font = '16px monospace';
-        this.ctx.fillText(`FPS: ${Math.round(1 / dt)}`, 10, 20);
+        // this.ctx.fillStyle = 'white';
+        // this.ctx.font = '16px monospace';
+        // this.ctx.fillText(`FPS: ${Math.round(1 / dt)}`, 10, 20);
     }
 
     private drawBomb(pos: PositionComponent, size: number, _bomb: BombComponent) {
@@ -139,52 +148,76 @@ export class RenderSystem extends System {
         }
     }
 
-    private drawEnemy(pos: PositionComponent, size: number, ai: AIComponent) {
-        // const px = pos.x * size; // pos is usually in pixels properly, wait. 
-        // My MovementSystem treats pos as pixels. 
-        // My previous drawPlayer logic: `const playerPx = pos.x * size;` -> This assumes pos.x is in GRID UNITS.
-        // BUT MovementSystem: `const nextX = pos.x + vel.dx * dt;` -> vel is px/sec. So pos.x is PIXELS.
-        // ERROR IN RENDER LOGIC DETECTED.
+    private drawEnemy(pos: PositionComponent, size: number, _ai: AIComponent) {
+        const cx = pos.x + size / 2;
+        const cy = pos.y + size / 2;
+        const radius = size / 2 - 2;
 
-        // I need to correct both drawPlayer and drawEnemy to treat pos as PIXELS.
-
-        // Let's fix drawPlayer logic here too implicitly by rewriting the methods correct assumption.
-        // Actually, let's fix the assumption.
-        // If pos is pixels, then:
-        const px2 = pos.x;
-        const py2 = pos.y;
-
-        // Draw Enemy
-        this.ctx.fillStyle = ai.behavior === AIBehavior.Chase ? '#ff4444' : '#ffaa00'; // Red for chase, Orange for wander
-
-        // Simple blob shape
+        this.ctx.fillStyle = '#ff6b6b'; // Red-ish
         this.ctx.beginPath();
-        this.ctx.arc(px2 + size / 2, py2 + size / 2, size * 0.4, 0, Math.PI * 2);
+        this.ctx.arc(cx, cy, radius, 0, Math.PI * 2);
         this.ctx.fill();
 
         // Face
         this.ctx.fillStyle = 'white';
+        this.ctx.font = '20px sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText("ò_ó", cx, cy);
+    }
+
+    private drawParticle(pos: PositionComponent, particle: ParticleComponent) {
+        this.ctx.fillStyle = particle.color;
+
+        // Fade out
+        if (particle.fade) {
+            this.ctx.globalAlpha = particle.lifetime / particle.maxLifetime;
+        }
+
         this.ctx.beginPath();
-        this.ctx.arc(px2 + size * 0.35, py2 + size * 0.4, size * 0.1, 0, Math.PI * 2);
-        this.ctx.arc(px2 + size * 0.65, py2 + size * 0.4, size * 0.1, 0, Math.PI * 2);
+        this.ctx.arc(pos.x, pos.y, particle.size, 0, Math.PI * 2);
         this.ctx.fill();
+
+        this.ctx.globalAlpha = 1.0;
     }
 
     private drawPlayer(pos: PositionComponent, size: number) {
-        // Correcting assumption: pos is in PIXELS
-        const playerPx = pos.x;
-        const playerPy = pos.y;
+        const px = pos.x;
+        const py = pos.y;
+        const cx = px + size / 2;
+        // const cy = py + size / 2; // Unused
+        // const radius = size / 2;  // Unused
 
-        this.ctx.fillStyle = 'white';
-        // Draw Bomber Head
+        // Tactical Soldier Look
+
+        // 1. Body (Camo Vest)
+        this.ctx.fillStyle = '#4b5320'; // Army Green
+        this.ctx.fillRect(px + 8, py + 18, size - 16, 14);
+
+        // 2. Head (Helmet)
+        this.ctx.fillStyle = '#3d3d3d'; // Dark Helmet
         this.ctx.beginPath();
-        this.ctx.arc(playerPx + size * 0.5, playerPy + size * 0.3, size * 0.3, 0, Math.PI * 2);
+        this.ctx.arc(cx, py + 14, 10, Math.PI, 0); // Helmet Top
+        this.ctx.lineTo(cx + 10, py + 18);
+        this.ctx.lineTo(cx - 10, py + 18);
         this.ctx.fill();
-        // Draw Body
-        this.ctx.fillRect(playerPx + size * 0.15, playerPy + size * 0.6, size * 0.7, size * 0.3);
-        // Draw Face details
-        this.ctx.fillStyle = 'black';
-        this.ctx.fillRect(playerPx + size * 0.3, playerPy + size * 0.25, size * 0.1, size * 0.1);
-        this.ctx.fillRect(playerPx + size * 0.6, playerPy + size * 0.25, size * 0.1, size * 0.1);
+
+        // 3. Face
+        this.ctx.fillStyle = '#ffdbac'; // Skin
+        this.ctx.fillRect(cx - 6, py + 18, 12, 8);
+
+        // 4. Goggles / Tactical Visor
+        this.ctx.fillStyle = '#33ccff';
+        this.ctx.fillRect(cx - 5, py + 20, 10, 4);
+
+        // 5. Arms
+        this.ctx.fillStyle = '#ffdbac';
+        this.ctx.fillRect(px + 2, py + 20, 6, 10); // Left Arm
+        this.ctx.fillRect(px + size - 8, py + 20, 6, 10); // Right Arm
+
+        // 6. Legs (Camo Pants)
+        this.ctx.fillStyle = '#3b4218'; // Darker Green
+        this.ctx.fillRect(px + 10, py + 32, 5, 8); // Left Leg
+        this.ctx.fillRect(px + size - 15, py + 32, 5, 8); // Right Leg
     }
 }

@@ -25,8 +25,21 @@
 </head>
 
 <body>
-    <div id="app">
+    <div id="game-container">
+        <div id="ui-layer">
+            <div id="game-header">
+                <div id="game-title">BOMBER LEGEND</div>
+                <div id="game-stats">
+                    <div id="score-board">SCORE: <span id="score-val">0</span></div>
+                    <div id="time-board">TIME: <span id="time-val">200</span></div>
+                </div>
+            </div>
+        </div>
         <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="game-over" class="hidden">
+            <h1>GAME OVER</h1>
+            <p>Press <span class="key">R</span> to Restart</p>
+        </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
 </body>
