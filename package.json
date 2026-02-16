@@ -11,8 +11,10 @@
   },
   "devDependencies": {
     "jsdom": "^28.1.0",
+    "terser": "^5.46.0",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
+    "vite-plugin-compression": "^0.5.1",
     "vitest": "^1.6.1"
   },
   "dependencies": {

@@ -8,6 +8,8 @@
     <meta name="description"
         content="Retro Arcade - Play classic Bomber Legend and Retro Racing games with modern features" />
     <meta name="keywords" content="retro games, arcade, bomber, racing, browser games" />
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.cloudfunctions.net https://www.google-analytics.com; font-src 'self' data:;">
     <title>Retro Arcade - Bomber Legend & Racing</title>
     <style>
         body {
@@ -53,54 +55,49 @@
             <div id="racing-header">
                 <button id="btn-back-menu-racing" class="icon-btn" aria-label="Back to Menu">🏠</button>
                 <div id="racing-hud">
-                    <div class="hud-item">SPEED: <span id="speed-val">0</span> km/h</div>
-                    <div class="hud-item">POS: <span id="pos-val">8</span>/8</div>
-                    <div class="hud-item">TIME: <span id="lap-time">00:00</span></div>
-                </div>
-            </div>
-        </div>
-        <canvas id="racingCanvas" width="800" height="600"></canvas>
-    </div>
-
-    <!-- Bomber Legend Container (Hidden by default) -->
-    <div id="bomber-legend-container" class="hidden" role="application" aria-label="Bomber Legend Game">
-        <div id="ui-layer" role="banner">
-            <div id="game-header">
-                <div id="header-left">
-                    <button id="btn-back-menu" class="icon-btn" aria-label="Back to Menu">🏠</button>
-                    <h1 id="game-title">BOMBER LEGEND</h1>
-                </div>
-                <div id="game-stats" role="status" aria-live="polite">
-                    <div id="score-board" aria-label="Score">SCORE: <span id="score-val">0</span></div>
-                    <div id="time-board" aria-label="Time Remaining">TIME: <span id="time-val">200</span></div>
-                </div>
-                <div id="auth-container">
-                    <button id="btn-login" class="google-btn" aria-label="Login with Google">Login</button>
-                    <div id="user-profile" class="hidden">
-                        <span id="user-name"></span>
-                        <button id="btn-leaderboard" class="icon-btn">🏆</button>
+                    <div class="hud-item">
+                        <span class="hud-label">SPEED</span>
+                        <span id="speed-val" class="hud-value" aria-live="polite">0</span>
+                        <span class="hud-unit">km/h</span>
+                    </div>
+                    <div class="hud-item">
+                        <span class="hud-label">POSITION</span>
+                        <span id="pos-val" class="hud-value" aria-live="polite">1/21</span>
+                    </div>
+                    <div class="hud-item">
+                        <span class="hud-label">LAP TIME</span>
+                        <span id="lap-time" class="hud-value" aria-live="polite">0.00</span>
                     </div>
                 </div>
             </div>
         </div>
+        <canvas id="racingCanvas" aria-label="Racing game canvas"></canvas>
+    </div>
 
-        <!-- Leaderboard Modal -->
-        <div id="leaderboard-modal" class="modal hidden">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>LEADERBOARD</h2>
-                <ul id="leaderboard-list">
-                    <!-- JS Populated -->
-                </ul>
+    <!-- Bomber Game Container (Hidden by default) -->
+    <div id="bomber-legend-container" class="hidden" role="application" aria-label="Bomber Legend Game">
+        <div id="ui-layer" role="banner">
+            <div id="game-header">
+                <button id="btn-back-menu" class="icon-btn" aria-label="Back to Menu">🏠</button>
+                <h1 id="game-title" class="game-title">THE BOMBER LEGEND</h1>
+                <div id="game-timer" class="game-timer" aria-live="polite">
+                    <span id="timer-value">0:00</span>
+                </div>
+            </div>
+            <div id="hud">
+                <div class="hud-section">
+                    <span class="hud-label">SCORE</span>
+                    <span id="score" class="hud-value" aria-live="polite">0</span>
+                </div>
+                <div class="hud-section">
+                    <span class="hud-label">LIVES</span>
+                    <span id="lives" class="hud-value" aria-live="polite">❤️❤️❤️</span>
+                </div>
             </div>
         </div>
-
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-        <div id="game-over" class="hidden">
-            <h1>GAME OVER</h1>
-            <p>Press <span class="key">R</span> to Restart</p>
-        </div>
+        <canvas id="gameCanvas" aria-label="Bomber game canvas"></canvas>
     </div>
+
     <script type="module" src="/src/main.ts"></script>
 </body>
 
