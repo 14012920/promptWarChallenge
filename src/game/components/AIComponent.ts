@@ -12,9 +12,11 @@ export class AIComponent extends Component {
     public targetY: number = -1;
     public reactionTime: number = 1.0; // Seconds between decisions
     public timer: number = 0;
+    public attackCooldown: number = 0; // New
 
-    constructor(behavior: AIBehavior = AIBehavior.Wander) {
+    constructor(behavior: AIBehavior) {
         super();
         this.behavior = behavior;
+        this.timer = Math.random() * this.reactionTime;
     }
 }

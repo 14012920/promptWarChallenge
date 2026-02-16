@@ -1,5 +1,6 @@
 import { System } from '../../engine/System';
 import { World } from '../../engine/World';
+import { Entity } from '../../engine/Entity';
 import { Game } from '../../engine/Game';
 import { Input } from '../../engine/Input';
 import { PositionComponent } from '../components/PositionComponent';
@@ -16,17 +17,12 @@ export class MovementSystem extends System {
     }
 
     public update(dt: number) {
-        const players = this.world.getEntitiesWith(PlayerComponent, PositionComponent, VelocityComponent);
-        const grids = this.world.getEntitiesWith(GridComponent);
-        const gridEntity = grids[0]; // Assume one grid for now
-        const grid = gridEntity ? gridEntity.getComponent(GridComponent) : null;
-
-        players.forEach(entity => {
-            const pos = entity.getComponent(PositionComponent)!;
+        // 1. Handle Input for Players
+        const players = this.world.getEntitiesWith(PlayerComponent, VelocityComponent);
+        players.forEach((entity: Entity) => {
             const vel = entity.getComponent(VelocityComponent)!;
             const player = entity.getComponent(PlayerComponent)!;
 
-            // Input handling
             vel.dx = 0;
             vel.dy = 0;
 
@@ -34,24 +30,28 @@ export class MovementSystem extends System {
             if (this.input.isDown('ArrowDown') || this.input.isDown('KeyS')) vel.dy = player.speed;
             if (this.input.isDown('ArrowLeft') || this.input.isDown('KeyA')) vel.dx = -player.speed;
             if (this.input.isDown('ArrowRight') || this.input.isDown('KeyD')) vel.dx = player.speed;
+        });
 
-            // Normalize diagonal speed? Classic bomberman usually doesn't allow diagonal or clamps it
-            // For "Evolved", we can keep it or restrict to 4-way. 
-            // Let's restrict to 4-way for precision.
-            if (vel.dx !== 0 && vel.dy !== 0) {
-                // Prioritize last pressed axis? Or just zero one. 
-                // Simple approach: if moving Horizontal, ignore Vertical unless specialized input.
-                // Actually, just let them move diagonally but collision will slide.
-            }
+        // 2. Apply Physics to ALL Movable Entities (Players + Enemies)
+        const movables = this.world.getEntitiesWith(PositionComponent, VelocityComponent);
+        const grids = this.world.getEntitiesWith(GridComponent);
+        const gridEntity = grids[0];
+        const grid = gridEntity ? gridEntity.getComponent(GridComponent) : null;
+
+        movables.forEach((entity: Entity) => {
+            const pos = entity.getComponent(PositionComponent)!;
+            const vel = entity.getComponent(VelocityComponent)!;
+
+            // Skip if no velocity
+            if (vel.dx === 0 && vel.dy === 0) return;
 
             // Apply Movement (X axis)
             const nextX = pos.x + vel.dx * dt;
             if (!grid || !this.checkCollision(nextX, pos.y, grid)) {
                 pos.x = nextX;
             } else {
-                // Simple slide/snap could go here
-                // If we hit a wall, we might want to align to grid
-                pos.x = Math.round(pos.x); // Very basic snap
+                // Determine direction for simple slide assist or just stop
+                // For now, just stop
             }
 
             // Apply Movement (Y axis)
@@ -59,11 +59,8 @@ export class MovementSystem extends System {
             if (!grid || !this.checkCollision(pos.x, nextY, grid)) {
                 pos.y = nextY;
             } else {
-                pos.y = Math.round(pos.y);
+                // Stop
             }
-
-            // Bounds check specific for canvas
-            // (Optional if grid walls already cover bounds)
         });
     }
 

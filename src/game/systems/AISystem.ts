@@ -1,11 +1,13 @@
 import { System } from '../../engine/System';
 import { World } from '../../engine/World';
+import { Entity } from '../../engine/Entity'; // New
 import { Game } from '../../engine/Game';
 import { AIComponent, AIBehavior } from '../components/AIComponent';
 import { PositionComponent } from '../components/PositionComponent';
 import { VelocityComponent } from '../components/VelocityComponent';
 import { GridComponent, TileType } from '../components/GridComponent';
 import { PlayerComponent } from '../components/PlayerComponent';
+import { BombComponent } from '../components/BombComponent'; // New
 
 export class AISystem extends System {
     constructor(world: World, _game: Game) {
@@ -25,12 +27,14 @@ export class AISystem extends System {
         const players = this.world.getEntitiesWith(PlayerComponent, PositionComponent);
         const playerPos = players.length > 0 ? players[0].getComponent(PositionComponent) : null;
 
-        agents.forEach(entity => {
+        agents.forEach((entity: Entity) => {
             const ai = entity.getComponent(AIComponent)!;
             const pos = entity.getComponent(PositionComponent)!;
             const vel = entity.getComponent(VelocityComponent)!;
 
             ai.timer -= dt;
+            if (ai.attackCooldown > 0) ai.attackCooldown -= dt;
+
             if (ai.timer <= 0) {
                 ai.timer = ai.reactionTime; // Reset timer
                 this.makeDecision(ai, pos, vel, grid, playerPos);
@@ -42,6 +46,21 @@ export class AISystem extends System {
         // Snap to grid for decision making
         const gx = Math.round(pos.x / grid.tileSize);
         const gy = Math.round(pos.y / grid.tileSize);
+
+        // Attack Logic
+        if (playerPos && ai.attackCooldown <= 0) {
+            const pgx = Math.round(playerPos.x / grid.tileSize);
+            const pgy = Math.round(playerPos.y / grid.tileSize);
+            const dist = Math.abs(gx - pgx) + Math.abs(gy - pgy);
+
+            if (dist <= 3) { // Range 3
+                // "Throw Fire" -> Spawn Bomb at current location (or throw? Placing is easier for now)
+                // Let's spawn a Bomb at enemy location
+                // console.log("Enemy Attacking!");
+                this.spawnEnemyBomb(gx, gy, grid.tileSize);
+                ai.attackCooldown = 3.0; // 3 seconds cooldown
+            }
+        }
 
         if (ai.behavior === AIBehavior.Wander) {
             // Pick a random valid neighbor
@@ -74,5 +93,14 @@ export class AISystem extends System {
                 vel.dy = Math.sign(dy) * 70;
             }
         }
+    }
+
+    private spawnEnemyBomb(gx: number, gy: number, tileSize: number) {
+        // Create a bomb entity
+        // Note: BombSystem handles explosions. We just need to create the entity with BombComponent.
+        const bomb = this.world.createEntity();
+        // Range 2 for enemies?
+        bomb.addComponent(new BombComponent(2, null)); // Owner null for enemies (infinite bombs?) or we can pass entity
+        bomb.addComponent(new PositionComponent(gx * tileSize, gy * tileSize));
     }
 }
