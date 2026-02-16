@@ -9,11 +9,9 @@ import { GridComponent, TileType } from '../components/GridComponent';
 
 export class MovementSystem extends System {
     private input: Input;
-    private game: Game;
 
     constructor(world: World, game: Game) {
         super(world);
-        this.game = game;
         this.input = game.Input;
     }
 
@@ -71,13 +69,14 @@ export class MovementSystem extends System {
 
     private checkCollision(x: number, y: number, grid: GridComponent): boolean {
         // Player defines a hitbox, assume size < tileSize (e.g. 30px size for 40px tile)
-        const size = 30;
-        const offset = (grid.tileSize - size) / 2; // Center player in tile visual
+        // Snap logic (optional, for perfect alignment)
+        // const offset = (grid.tileSize - size) / 2; // Center player in tile visual
 
         // Check 4 corners of the hitbox
         // Box is [x, y, x+size, y+size]
 
         // Convert corners to grid coordinates
+        const size = 30;
         const left = Math.floor(x / grid.tileSize);
         const right = Math.floor((x + size) / grid.tileSize);
         const top = Math.floor(y / grid.tileSize);

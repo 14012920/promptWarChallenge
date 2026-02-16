@@ -6,7 +6,7 @@ export class DirectorSystem extends System {
     private timer: number = 0;
     private intensity: number = 0; // 0 to 1
 
-    constructor(world: World, game: Game) {
+    constructor(world: World, _game: Game) {
         super(world);
     }
 

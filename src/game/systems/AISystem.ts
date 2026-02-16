@@ -8,9 +8,7 @@ import { GridComponent, TileType } from '../components/GridComponent';
 import { PlayerComponent } from '../components/PlayerComponent';
 
 export class AISystem extends System {
-    private dangerMap: number[] = []; // Simple heat map (0 = safe, 100 = death)
-
-    constructor(world: World, game: Game) {
+    constructor(world: World, _game: Game) {
         super(world);
     }
 

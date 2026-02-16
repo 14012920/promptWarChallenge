@@ -72,7 +72,7 @@ export class RenderSystem extends System {
         this.ctx.fillText(`FPS: ${Math.round(1 / dt)}`, 10, 20);
     }
 
-    private drawBomb(pos: PositionComponent, size: number, bomb: BombComponent) {
+    private drawBomb(pos: PositionComponent, size: number, _bomb: BombComponent) {
         const px = pos.x;
         const py = pos.y;
 
@@ -140,7 +140,7 @@ export class RenderSystem extends System {
     }
 
     private drawEnemy(pos: PositionComponent, size: number, ai: AIComponent) {
-        const px = pos.x * size; // pos is usually in pixels properly, wait. 
+        // const px = pos.x * size; // pos is usually in pixels properly, wait. 
         // My MovementSystem treats pos as pixels. 
         // My previous drawPlayer logic: `const playerPx = pos.x * size;` -> This assumes pos.x is in GRID UNITS.
         // BUT MovementSystem: `const nextX = pos.x + vel.dx * dt;` -> vel is px/sec. So pos.x is PIXELS.
