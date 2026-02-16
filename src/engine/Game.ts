@@ -127,6 +127,14 @@ export class Game {
         this.loop(this.lastTime);
     }
 
+    public stop() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = 0;
+        }
+        // Additional cleanup if needed (e.g. remove event listeners)
+    }
+
     private loop(timestamp: number) {
         const dt = (timestamp - this.lastTime) / 1000;
         this.lastTime = timestamp;
@@ -168,9 +176,5 @@ export class Game {
         if (this.scoreEl) {
             this.scoreEl.textContent = this.score.toString();
         }
-    }
-
-    public stop() {
-        cancelAnimationFrame(this.animationId);
     }
 }

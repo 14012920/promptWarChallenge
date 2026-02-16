@@ -121,6 +121,196 @@ canvas {
   color: #ff4444;
 }
 
+/* Auth & Buttons */
+.google-btn {
+  background: #4285f4;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.google-btn:hover {
+  background: #357ae8;
+}
+
+#user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.8rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  filter: drop-shadow(0 0 5px gold);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #222;
+  border: 2px solid #444;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  color: white;
+  font-family: 'Press Start 2P', monospace;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.close-modal:hover {
+  color: #fff;
+}
+
+#leaderboard-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+#leaderboard-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+}
+
+#leaderboard-list li:first-child {
+  color: gold;
+}
+
+#leaderboard-list li:nth-child(2) {
+  color: silver;
+}
+
+#leaderboard-list li:nth-child(3) {
+  color: #cd7f32;
+  /* Bronze */
+}
+
+/* Global Hidden Utility */
+.hidden {
+  display: none !important;
+}
+
+/* Launcher Styles */
+.launcher-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, #222, #000);
+  color: white;
+  font-family: 'Press Start 2P', monospace;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 200;
+}
+
+.launcher-title {
+  font-size: 3rem;
+  color: #ffcc00;
+  text-shadow: 4px 4px #ff4400;
+  margin-bottom: 50px;
+}
+
+.game-grid {
+  display: flex;
+  gap: 30px;
+}
+
+.game-card {
+  width: 250px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #444;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.game-card:hover:not(.disabled) {
+  transform: translateY(-10px);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: gold;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.game-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(100%);
+}
+
+.game-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.game-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.game-card p {
+  font-size: 0.8rem;
+  color: #aaa;
+  line-height: 1.4;
+}
+
+/* Header adjustments for Back Button */
+#header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;

@@ -5,7 +5,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The BomberLegend: Evolved</title>
+    <meta name="description"
+        content="Retro Arcade - Play classic Bomber Legend and Retro Racing games with modern features" />
+    <meta name="keywords" content="retro games, arcade, bomber, racing, browser games" />
+    <title>Retro Arcade - Bomber Legend & Racing</title>
     <style>
         body {
             margin: 0;
@@ -25,16 +28,73 @@
 </head>
 
 <body>
-    <div id="game-container">
-        <div id="ui-layer">
-            <div id="game-header">
-                <div id="game-title">BOMBER LEGEND</div>
-                <div id="game-stats">
-                    <div id="score-board">SCORE: <span id="score-val">0</span></div>
-                    <div id="time-board">TIME: <span id="time-val">200</span></div>
+    <!-- Game Launcher Menu -->
+    <main id="launcher" class="launcher-container" role="main" aria-label="Game Selection Menu">
+        <h1 class="launcher-title">RETRO ARCADE</h1>
+        <div class="game-grid" role="list" aria-label="Available Games">
+            <button class="game-card" data-game="bomber" role="listitem"
+                aria-label="Play Bomber Legend - Tactical explosive action game">
+                <div class="game-icon" aria-hidden="true">💣</div>
+                <h2>BOMBER LEGEND</h2>
+                <p>Tactical explosive action!</p>
+            </button>
+            <button class="game-card" data-game="racing" role="listitem"
+                aria-label="Play Retro Racing - High-speed arcade racing game">
+                <div class="game-icon" aria-hidden="true">🏎️</div>
+                <h2>RETRO RACING</h2>
+                <p>High-speed arcade action!</p>
+            </button>
+        </div>
+    </main>
+
+    <!-- Racing Game Container (Hidden by default) -->
+    <div id="racing-game-container" class="hidden" role="application" aria-label="Retro Racing Game">
+        <div id="racing-ui-layer" role="banner">
+            <div id="racing-header">
+                <button id="btn-back-menu-racing" class="icon-btn" aria-label="Back to Menu">🏠</button>
+                <div id="racing-hud">
+                    <div class="hud-item">SPEED: <span id="speed-val">0</span> km/h</div>
+                    <div class="hud-item">POS: <span id="pos-val">8</span>/8</div>
+                    <div class="hud-item">TIME: <span id="lap-time">00:00</span></div>
                 </div>
             </div>
         </div>
+        <canvas id="racingCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <!-- Bomber Legend Container (Hidden by default) -->
+    <div id="bomber-legend-container" class="hidden" role="application" aria-label="Bomber Legend Game">
+        <div id="ui-layer" role="banner">
+            <div id="game-header">
+                <div id="header-left">
+                    <button id="btn-back-menu" class="icon-btn" aria-label="Back to Menu">🏠</button>
+                    <h1 id="game-title">BOMBER LEGEND</h1>
+                </div>
+                <div id="game-stats" role="status" aria-live="polite">
+                    <div id="score-board" aria-label="Score">SCORE: <span id="score-val">0</span></div>
+                    <div id="time-board" aria-label="Time Remaining">TIME: <span id="time-val">200</span></div>
+                </div>
+                <div id="auth-container">
+                    <button id="btn-login" class="google-btn" aria-label="Login with Google">Login</button>
+                    <div id="user-profile" class="hidden">
+                        <span id="user-name"></span>
+                        <button id="btn-leaderboard" class="icon-btn">🏆</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Modal -->
+        <div id="leaderboard-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>LEADERBOARD</h2>
+                <ul id="leaderboard-list">
+                    <!-- JS Populated -->
+                </ul>
+            </div>
+        </div>
+
         <canvas id="gameCanvas" width="800" height="600"></canvas>
         <div id="game-over" class="hidden">
             <h1>GAME OVER</h1>

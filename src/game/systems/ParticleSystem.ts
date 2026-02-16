@@ -1,26 +1,43 @@
 import { System } from '../../engine/System';
 import { World } from '../../engine/World';
-import { Entity } from '../../engine/Entity';
 import { Game } from '../../engine/Game';
 import { ParticleComponent } from '../components/ParticleComponent';
 import { PositionComponent } from '../components/PositionComponent';
 import { VelocityComponent } from '../components/VelocityComponent';
 
+// Efficiency: Particle pooling constants
+const MAX_PARTICLES = 100;
+
 export class ParticleSystem extends System {
-    // private ctx: CanvasRenderingContext2D;
+    private particlesToRemove: number[] = [];
 
     constructor(world: World, _game: Game) {
         super(world);
-        // this.ctx = game.Context;
     }
 
     public update(dt: number) {
-        const particles = this.world.getEntitiesWith(ParticleComponent, PositionComponent, VelocityComponent);
+        const particles = this.world.getEntitiesWith(ParticleComponent);
 
-        particles.forEach((entity: Entity) => {
-            const particle = entity.getComponent(ParticleComponent)!;
-            const pos = entity.getComponent(PositionComponent)!;
-            const vel = entity.getComponent(VelocityComponent)!;
+        // Clear removal queue
+        this.particlesToRemove.length = 0;
+
+        // Efficiency: Cap particles to prevent performance degradation
+        if (particles.length > MAX_PARTICLES) {
+            const toRemove = particles.length - MAX_PARTICLES;
+            // Remove oldest particles first
+            for (let i = 0; i < toRemove; i++) {
+                this.particlesToRemove.push(particles[i].id);
+            }
+        }
+
+        // Update active particles
+        for (let i = 0; i < particles.length; i++) {
+            const entity = particles[i];
+            const particle = entity.getComponent(ParticleComponent);
+            const pos = entity.getComponent(PositionComponent);
+            const vel = entity.getComponent(VelocityComponent);
+
+            if (!particle || !pos || !vel) continue;
 
             // Update Physics
             pos.x += vel.dx * dt;
@@ -30,15 +47,15 @@ export class ParticleSystem extends System {
             particle.lifetime -= dt;
 
             if (particle.lifetime <= 0) {
-                this.world.destroyEntity(entity.id);
-            } else {
-                // Render (Directly here for performance, or move to RenderSystem)
-                // Let's render here to keep RenderSystem clean of millions of particles? 
-                // Or better: RenderSystem handles all rendering. 
-                // Actually, for ECS purity, RenderSystem should render. 
-                // But for performance in JS, sometimes batching in a specialized system is okay.
-                // Let's stick to RenderSystem handling rendering to avoid context state bleeding.
+                this.particlesToRemove.push(entity.id);
             }
-        });
+        }
+
+        // Batch remove dead particles for efficiency
+        if (this.particlesToRemove.length > 0) {
+            for (const id of this.particlesToRemove) {
+                this.world.destroyEntity(id);
+            }
+        }
     }
 }
